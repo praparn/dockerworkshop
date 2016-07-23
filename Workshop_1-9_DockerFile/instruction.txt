@@ -1,0 +1,62 @@
+For this workshop. We will create 1 dockerfile for install NODEJS & NPM on Pure "Alpine Linux" with Add 1 file (Hello.JS) to path /nodejs/hello.js
+
+=================
+NODEJS Container
+=================
+
+1. On docker-machine. Create directory "nodejs" for keep dockerfile with command: "mkdir /home/docker/nodejs"
+
+2. On WINSCP (For Windows) for transfer file "Hello.js" and "dockerfile" to /home/docker/nodejs
+   On MAC use SCP for transfer file "Hello.js and "dockerfile" to /home/docker/nodejs with command:
+
+	scp docker@<ip-address of docker-machine>:/home/docker/nodejs <Path of workshop>
+
+   #######################################################################################################
+   In Case Map: "Share_Docker"
+
+	2.1 Copy file to folder "Share_Docker"
+	2.2 Move file to path /home/docker/nodejs with command:"mv /Share_Docker/* /home/docker/nodejs/"
+   #######################################################################################################
+	
+
+3. Build docker image from command: "docker build -t labdocker/node:1.0 /home/docker/nodejs"
+
+4. Test run docker image from command: "docker run -dt --name NODEJS -p 3000:3000 labdocker/node:1.0"
+
+5. open url:"http://x.x.x.x:3000"
+
+================
+NGINX Container
+================
+
+6. Check IP Address of docker-machine for configure in nginx.conf by command: "docker-machine ls"
+
+7. Open nginx.conf for configure IP Address on nginx.conf
+
+8. On docker-machine. Create directory "nginx" for keep dockerfile with command: "mkdir /home/docker/nginx"
+
+9. On WINSCP (For Windows) for transfer file "nginx.conf" and "dockerfile" to /home/docker/nginx
+   On MAC use SCP for transfer file "nginx.conf" and "dockerfile" to /home/docker/nginx with command:
+
+	scp docker@<ip-address of docker-machine>:/home/docker/nginx <Path of workshop>
+
+   #######################################################################################################
+   In Case Map: "Share_Docker"
+
+	2.1 Copy file to folder "Share_Docker"
+	2.2 Move file to path /home/docker/nodejs with command:"mv /Share_Docker/* /home/docker/nginx/"
+   #######################################################################################################
+
+10. Build docker image from command: "docker build -t labdocker/web:1.0 /home/docker/nginx"
+
+11. Test run docker image from command: "docker run -dt --name NGINX -p 8080:8080 labdocker/web:1.0"
+
+12. open url:"http://x.x.x.x:8080"
+
+13. open url:"http://x.x.x.x:8080/nodejs"
+
+14. Clean Up Lab with command below
+
+	14.1 "docker stop NGINX NODEJS"
+	14.2 "docker rm NGINX NODEJS"
+	14.3 cd / & rm -R -f /home/docker/nodejs & rm -R -f /home/docker/nginx

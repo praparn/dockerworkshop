@@ -1,0 +1,29 @@
+For this workshop. We need you to demo dynamic dns with option --net-alias="xxxx"
+
+1. Run container web1 & web2 with connect network web internal
+
+	docker network create --driver bridge \
+	--subnet=192.168.101.0/24 --ip-range=192.168.101.128/25 \
+	--gateway=192.168.101.5 --opt="com.docker.network.mtu"="9000" webinternal
+
+	docker run -dt --name web1 --net webinternal \
+	--net-alias web labdocker/alpineweb:web1 node hello.js
+
+	docker run -dt --name web2 --net webinternal \
+	--net-alias web labdocker/alpineweb:web2 node hello.js
+
+2. Run container alpine for check load balance 
+
+	docker run -dt --name nginx --net webinternal \
+	labdocker/nginx:lab
+
+3. Test with exec alpine container
+
+	docker exec -it nginx sh
+	curl http://web:3000
+	curl http://web:3000
+
+9. Clean up container with command:
+	docker stop web1 web2 nginx
+	docker rm web1 web2 nginx
+	docker network rm webinternal

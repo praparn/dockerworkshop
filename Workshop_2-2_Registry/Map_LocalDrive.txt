@@ -1,0 +1,20 @@
+On Local Computer:
+
+1. Create Folder (For Windows) or path (For Mac) with name "Share_Docker" on local computer
+2. Open oracle virtual box and select target virtual machine ==> Click "Setting"
+3. Select "Shared Folders" and Click "Add Share" (Checked "Auto Mount", "Make Permanent")
+4. Input path of folder "Share_Docker" and Specific Name Folder Name with "Share_Docker"
+5. Click OK for Finished 
+
+
+On Docker Machine
+
+1. SSH to docker-machine
+2. Create new directory for map share path with command: 
+
+	cd /
+	sudo mkdir -p /Share_Docker
+
+3. Mount share path with command:
+
+	sudo mount -t vboxsf -o defaults,uid=$(id -u docker),gid=$(id -g docker) Share_Docker Share_Docker

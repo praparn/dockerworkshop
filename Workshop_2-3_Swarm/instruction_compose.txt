@@ -1,0 +1,20 @@
+*WARNING: COMPOSE for SWARM is still experimental so when apply to production please kinly test all scenario before use
+
+======
+COMPOSE with SWARM
+======
+location: ####client-cli####
+
+1. On docker-machine. Create directory "composemultinodejsswarm" for keep compose-service with command: 
+
+	mkdir /home/docker/composemultinodejsswarm
+
+2. Transfer file "docker-compose.yml"to /home/docker/composemultinodejsswarm
+
+3. Start docker-compose on path: /home/docker/composemultinodejsswarm by command: "docker-compose up -d"
+
+4. Open url: http://x.x.x.x/nodejs for check result
+
+5. Stop docker-compose by command: "docker-compose stop"
+
+6. Remove docker-compose by command: "docker-compose down"

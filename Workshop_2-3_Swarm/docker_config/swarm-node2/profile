@@ -1,0 +1,17 @@
+
+EXTRA_ARGS='
+
+--cluster-store=consul://192.168.99.100:8500
+--cluster-advertise=eth1:2375
+--label provider=virtualbox
+--label Storage=sas
+
+'
+CACERT=/var/lib/boot2docker/ca.pem
+DOCKER_HOST='-H tcp://0.0.0.0:2375'
+DOCKER_STORAGE=aufs
+DOCKER_TLS=no
+SERVERKEY=/var/lib/boot2docker/server-key.pem
+SERVERCERT=/var/lib/boot2docker/server.pem
+
+

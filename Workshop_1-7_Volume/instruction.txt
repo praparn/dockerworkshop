@@ -1,0 +1,56 @@
+For this workshop. We will demonstration about how to use volume on purpose of share storage and backup/restore
+
+1. Create volume container with command:
+
+	docker run -dt --name datavol \
+	-v /data labdocker/alpine sh
+
+2. Create web container (web1) by attach volume with command:
+	
+	docker run -dt --name web1 \
+	--volumes-from datavol labdocker/alpine sh
+
+3. Shell to container web1 and touch file on /data
+	
+	docker exec -it web1 sh
+	touch /data/test_web1
+
+4. Create web container (web2) by attach volume with command:
+	
+	docker run -dt --name web2 \
+	--volumes-from datavol labdocker/alpine sh
+
+5. Shell to container web2 and touch file on /data
+	
+	docker exec -it web2 sh
+	touch /data/test_web2
+
+6. Create backup for volume /data by run container with command:
+
+	docker run --rm --volumes-from datavol \
+	-v $(pwd):/backup labdocker/ubuntu tar cvf \
+	/backup/vol001.tar /data
+
+7. We will see backup file (vol001.tar) on /home/docker
+
+8. Shell to any container to delete file
+
+	docker exec -it web1 sh
+	rm * /data
+
+9. Restore backup for volume /data by run container with command:
+
+	docker run --rm --volumes-from datavol \
+	-v $(pwd):/backup labdocker/ubuntu bash -c \
+	"cd /data && tar xvf /backup/vol001.tar --strip 1"
+
+10. Check on any container for check file
+
+	docker exec -it web1 sh
+	ls -l /data
+
+11. Cleanup lab
+	
+	docker stop web1 web2 datavol
+	docker rm -v web1 web2 datavol
+	

@@ -1,0 +1,35 @@
+version: '2'
+services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    depends_on:
+      - web1
+      - web2
+    links:
+      - web1
+      - web2
+    networks:
+      - webpublic
+      - webinternal
+    ports:
+      - "80:8080"
+
+  web1:
+    build: ./web1
+    container_name: web1
+    networks:
+      - webinternal
+
+  web2:
+    build: ./web2
+    container_name: web2
+    networks:
+      - webinternal
+
+networks:
+    webpublic:
+      driver: bridge
+
+    webinternal:
+      driver: bridge

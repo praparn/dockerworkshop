@@ -1,0 +1,43 @@
+version: '2'
+services:
+  nginx:
+    environment:
+      - "constraint:node==swarm-node1"
+    image: labdocker/nginx:labswarm
+    container_name: nginx
+    depends_on:
+      - web1
+      - web2
+    links:
+      - web1
+      - web2
+    networks:
+      - webpublic
+      - webinternal
+    ports:
+      - "80:8080"
+
+  web1:
+    environment:
+      - "constraint:node==swarm-node1"
+    image: labdocker/alpineweb:web1
+    command: node hello.js
+    container_name: web1
+    networks:
+      - webinternal
+
+  web2:
+    environment:
+      - "constraint:node==swarm-node1"
+    image: labdocker/alpineweb:web2
+    command: node hello.js
+    container_name: web2
+    networks:
+      - webinternal
+
+networks:
+    webpublic:
+      driver: overlay
+
+    webinternal:
+      driver: overlay

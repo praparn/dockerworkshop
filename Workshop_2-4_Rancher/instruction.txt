@@ -1,0 +1,16 @@
+For this workshop. We will demonstration how to start rancher server on labdocker (Assume ip addres of rancher is: 192.168.99.100)
+
+1. Create container for rancher server with command:
+
+	docker run -d --name rancher-server --restart=always -p 8080:8080 \
+	labdocker/rancher-server:latest 
+
+	docker logs -f rancher-server
+
+2. Open URL: http://192.168.99.100:8080 and Add Host
+
+3. Create container for rancher agent/host command:
+
+sudo docker run -e CATTLE_AGENT_IP='192.168.99.100'  -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:v0.11.0 http://192.168.99.100:8080/v1/scripts/5E3A0298855B07400B7B:1462107600000:dLfl7J14pM9Sj8jbWJIVFqn2RIc
+
+4. Access and Test for Rancher (Test Create NGINX Server with Map 80:80)

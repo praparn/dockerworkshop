@@ -1,0 +1,325 @@
+For this workshop. We will create new docker-engine for swarm like demonstration below:
+
+=================
+Clean Up All Existing LAB / Create docker-engine for LAB Swarm
+=================
+1. Check all docker-machine on previous lab with command:
+
+	docker-machine ls
+
+2. Create docker-engine for lab and stop labdocker2 (for reduce resource consume) with command below:
+
+	docker-machine create --driver=virtualbox --virtualbox-memory=400 swarm-mng
+	docker-machine create --driver=virtualbox --virtualbox-memory=400 swarm-node1
+	docker-machine create --driver=virtualbox --virtualbox-memory=400 swarm-node2
+	docker-machine stop labdocker2
+
+3. Record ip address of each docker-engine for use in next step: Normally should like below:
+
+D:\certs>docker-machine ls
+NAME          ACTIVE   DRIVER       STATE     URL                         SWARM
+consul        -        virtualbox   Stopped
+labdocker     -        virtualbox   Running   tcp://192.168.99.100:2376
+labdocker2    -        virtualbox   Stopped
+swarm-mng     -        virtualbox   Running   tcp://192.168.99.102:2376
+swarm-node1   -        virtualbox   Running   tcp://192.168.99.103:2376
+swarm-node2   -        virtualbox   Running   tcp://192.168.99.104:2376
+
+======================
+Run Consul Discovery Service
+======================
+location: ####labdocker####
+
+1. Login to docker-engine and pull image for consul by command: 
+
+	docker pull labdocker/consul:latest
+
+2. Run container consul by command:
+
+	docker run --restart=unless-stopped -dt -p 8500:8500 -h consul \
+	--name consul labdocker/consul:latest -server -bootstrap
+
+3. Check container of consul by command: docker ps
+
+=================
+Enable NON TLS Connection for Docker-Machine for Remote Execute
+=================
+location:#### swarm-mng, swarm-node1, swarm-node2####
+
+1. Transfer / SCP file "profile" to /home/docker/profile (swarm-mng, swarm-node1, swarm-node2)
+
+   #######################################################################################################
+   In Case Map: "Share_Docker" (
+
+	2.1 Copy "profile" to folder "Share_Docker" (From each folder)
+	2.2 Move file to path /home/docker/composenodejs with command: "mv /Share_Docker/* /home/docker/"
+	2.3 Repeat Step for 3 machine (swarm-mng, swarm-node1, swarm-node2)
+   #######################################################################################################
+
+
+
+2. Copy profile to effective path by command:
+
+	sudo cp /home/docker/profile /var/lib/boot2docker/
+	sudo chmod 644 /var/lib/boot2docker/profile
+
+3. Restart docker daemon by command: sudo /etc/init.d/docker restart
+
+
+================
+SETUP SWARM MANAGER
+================
+location: ####swarm-mng####
+
+1. Pulling image of swarm by command: docker pull swarm
+
+2. Run container for swarm manager by command:
+	
+	docker run -dt --name swarm-mng --restart=unless-stopped -p 3375:2375 \
+	swarm manage consul://192.168.99.100:8500
+
+3. Check to make sure docker swarm manger running by command: docker ps
+
+4. Join docker-machine (docker-mng) to swarm by command:
+	docker -H=tcp://192.168.99.102:2375 run -d --name swarm-agent \
+	swarm join --advertise=192.168.99.102:2375  \
+	consul://192.168.99.100:8500
+
+5. Join docker-machine (docker-node1) to swarm by command:
+
+	docker -H=tcp://192.168.99.103:2375 run -d --name swarm-agent \
+        swarm join --advertise=192.168.99.103:2375 \
+	consul://192.168.99.100:8500
+
+6. Join docker-machine (docker-node2) to swarm by command:
+
+	docker -H=tcp://192.168.99.104:2375 run -d --name swarm-agent \
+        swarm join --advertise=192.168.99.104:2375 \
+	consul://192.168.99.100:8500
+-------------------------------------------------------------------------------
+location: ####client-cli####
+
+6. Set Environment Path for Run in Swarm by command:
+
+	export DOCKER_HOST=192.168.99.102:3375 ==> Case Unix / MAC
+	set DOCKER_HOST=192.168.99.102:3375 ==> Case Windows
+
+7. Check status of Swarm by command: docker info
+
+8. Check status of Consul by command: docker run --rm swarm list consul://192.168.99.100:8500
+
+9. Test run some image on swarm by command: docker run -dt --name test labdocker/alpine:latest sh
+
+10. Check status and location of container by command: docker ps
+
+11. Clean Up by command: 
+	
+	docker stop test
+	docker rm test
+
+12. Pull image for preparation lab by command:
+
+	docker pull labdocker/alpineweb:latest
+	docker pull labdocker/nginx:latest
+
+================
+Container Scheduling: Constraint
+================
+location: ####client-cli####
+
+1. Run container with constraint for storage as command below:
+
+	docker run -d -P -e constraint:Storage==nvdimm --name nodejs \
+	labdocker/alpineweb:latest node hello.js
+
+	docker run -d -P -e constraint:Storage==sas --name nodejs2 \
+	labdocker/alpineweb:latest node hello.js
+
+2. Check process of container by command: docker ps
+
+3. Clean Up by command:
+
+	docker stop nodejs nodejs2
+	docker rm nodejs nodejs2
+
+===============
+Container Scheduling: Affinity by Container Name/ID
+===============
+location: ####client-cli####
+
+1. Run container with Affinity (Container Name) as command below:
+
+	docker run -dt --name nodejs -e constraint:Storage==sas \
+	labdocker/alpineweb:latest node hello.js
+	
+	docker run -dt --name web -e affinity:container==nodejs \
+	labdocker/nginx:latest 
+	
+	docker ps
+
+2. Clean Up by command
+
+	docker stop nodejs web
+	docker rm nodejs web
+
+
+===============
+Container Scheduling: Affinity by Image
+===============
+location: ####swarm-node1####
+
+1. Pull Image for alpine linux on swarm-node1 by command: docker pull labdocker/alpine:latest
+
+location: swarm-node2
+
+2. Delete Image (If Avaliable) for alpine linux on swarm-node2 by command: docker rmi labdocker/alpine:latest
+
+location: ####client-cli####
+
+3. Run container with Affinity (Image) as commmand:
+
+	docker run -dt --name node1 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker run -dt --name node2 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker run -dt --name node3 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker run -dt --name node4 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker run -dt --name node5 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker run -dt --name node6 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker run -dt --name node7 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker run -dt --name node8 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker run -dt --name node9 -e affinity:image==labdocker/alpine:latest labdocker/alpine:latest sh
+	docker ps
+
+4. Clean Up by command
+
+	docker stop node1 node2 node3 node4 node5 node6 node7 node8 node9
+
+	docker rm node1 node2 node3 node4 node5 node6 node7 node8 node9
+
+============
+Container Scheduling: Dependency Filter
+============
+location: ####client-cli####
+
+1. Create volume container by command: 
+
+	docker run -dt --name datavol -v /data labdocker/alpine:latest sh
+
+2. Run container for mount volume from specify above by command:
+
+	docker run -dt --name web1 --volumes-from datavol labdocker/alpine sh
+	docker ps
+
+3. Clean Up by command:
+
+	docker stop datavol web1
+	docker rm -v datavol web1
+
+============
+Container Scheduling: Port Filter
+============
+location: ####client-cli####
+
+1. Run docker container for create 2 container nodejs with mapping port 3000 by command:
+	
+	docker run -dt --name nodejs1 -p 3000:3000 labdocker/alpineweb:latest node hello.js
+	docker run -dt --name nodejs2 -p 3000:3000 labdocker/alpineweb:latest node hello.js
+	docker ps
+
+2. Clean Up by command:
+
+	docker stop nodejs1 nodejs2
+	docker rm nodejs1 nodejs2
+
+===========
+SWARM High Avalibility
+===========
+location: ####swarm-mng####
+1. Stop swarm-manager container by command:
+
+	docker stop swarm-mng
+	docker rm swarm-mng
+
+2. Run docker container for swarm-mng with option for replication by command:
+
+	docker run -dt --name swarm-mng --restart=unless-stopped -p 3375:2375 \
+	swarm manage --replication --advertise 192.168.99.102:3375 \
+	consul://192.168.99.100:8500
+
+3. Check log for election the docker-manager by command: "docker logs swarm-mng"
+
+Location: ####swarm-node1####
+
+4. Run docker container for swarm-mng with option for replication by command:
+
+	docker run -dt --name swarm-mng --restart=unless-stopped -p 3375:2375 \
+	swarm manage --replication --advertise 192.168.99.103:3375 \
+	consul://192.168.99.100:8500
+
+5. Check log for election the docker-manager by command: "docker logs swarm-mng"
+
+location: ####swarm-mng####
+
+6. Stop swarm-manger container by command:"docker stop swarm-mng"
+
+location: swarm-node1
+
+7.  Check log for election the docker-manager by command: "docker logs swarm-mng"
+
+location: ####client-cli####
+
+8.  Test Connect to new swarm-mng by command:
+
+	set/export DOCKER_HOST=192.168.99.103:3375
+	docker info
+
+9.  Clean Up all docker-machine by command:
+location: ####client-cli####
+
+===========
+Create OverLay Network
+===========
+location: ####client-cli###
+
+1. Check current network on swarm with command: docker network ls
+
+2. Create new overlay network for swarm with command:
+
+	docker network create --driver overlay --subnet=192.168.100.0/24 swarmnet
+	docker network ls
+
+3. Create 2 container on difference node for test overlay network with command:
+
+	docker run -dt --name test1 --net=swarmnet -e=constraint:node==swarm-node1 labdocker/alpine sh
+	docker run -dt --name test2 --net=swarmnet -e=constraint:node==swarm-node2 labdocker/alpine sh
+
+4. Check IP Address of both container by command:
+
+	docker inspect test1|grep IPAddress ==> 192.168.100.102
+	docker inspect test2|grep IPAddress ==> 192.168.100.103
+
+5. Test access from container "test1" and access to "test2" by command:
+
+	docker exec -it test1 ping 192.168.100.3
+	docker exec -it test2 ping 192.168.100.2
+
+6. CleanUp Lab
+	docker stop test1 test2
+	docker rm test1 test2
+
+===========
+Reschedule Node Failure
+===========
+location: ####client-cli###
+1. Run container with option "on-node-failure" by command:
+
+	docker run -dt --name alpine -e reschedule:on-node-failure labdocker/alpine:latest sh
+
+2. Check container avaliable on swarm by command: docker ps
+
+3. Shutdown specific node: sudo shutdown -h now
+
+4. Wait 5 min before check: docker ps
+
+5. CleanUp Lab by command: 
+	docker stop alpine
+	docker rm alpine

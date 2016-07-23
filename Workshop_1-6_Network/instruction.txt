@@ -1,0 +1,40 @@
+For this workshop. We need you to deploy NGINX for load balance and reverse proxy
+1. Pull image nginx with command: 		"docker pull labdocker/nginx:lab"
+2. Pull image nodejs (web1) with command:	"docker pull labdocker/alpineweb:web1"
+3. Pull image nodejs (web2) with command:	"docker pull labdocker/alpineweb:web2"
+4. Create Public Network with command:
+
+	docker network create --driver bridge \
+	--subnet=192.168.100.0/24 --ip-range=192.168.100.128/25 \
+	--gateway=192.168.100.5 --opt="com.docker.network.mtu"="1500" webpublic
+
+	docker network create --driver bridge \
+	--subnet=192.168.101.0/24 --ip-range=192.168.101.128/25 \
+	--gateway=192.168.101.5 --opt="com.docker.network.mtu"="9000" webinternal
+
+5. Run container web1 & web2 with command:
+
+	docker run -dt --name web1 --net webinternal \
+	--ip="192.168.101.131" labdocker/alpineweb:web1 node hello.js
+
+	docker run -dt --name web2 --net webinternal \
+	--ip="192.168.101.132" labdocker/alpineweb:web2 node hello.js
+
+6. Run container nginx and attach network 
+
+	docker run -dt --name nginx --net webinternal \
+	--ip="192.168.101.130"  -p 80:8080 labdocker/nginx:lab
+
+	docker network connect webpublic nginx --ip="192.168.100.130"
+
+7. Open url: http://<ip address of docker-machine>:80/nodejs
+
+8. Shell to nginx and test curl to nodejs with command below:
+	docker exec -it nginx sh
+	curl http://192.168.101.131:3000
+	curl http://192.168.101.132:3000
+
+9. Clean up container with command:
+	docker stop web1 web2 nginx
+	docker rm web1 web2 nginx
+	docker network rm webpublic webinternal
