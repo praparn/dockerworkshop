@@ -10,7 +10,7 @@ Registry on single docker-machine
 2. Running registry by command:
 
 	docker run -d -p 5000:5000 \
-	--restart=always --name registry \
+	--restart=always --name registrylab \
 	-e REGISTRY_STORAGE_DELETE_ENABLED=true \
 	-v /home/docker:/var/lib/registry registry:2.4.1 
 
@@ -46,15 +46,15 @@ Registry on single docker-machine
 
 8. Clean Up Lab by command:
 
-	docker stop registry
-	docker rm -v registry
+	docker stop registrylab
+	docker rm -v registrylab
 
 
 ===================================
 Registry on multihost docker-machine
 ===================================
-	
-9. Create second docker-machine "labdocker2" by command (on notebook): "docker-machine create --driver virtualbox --virtualbox-memory=400  labdocker2"
+
+9. Create second docker-machine "labdocker2" by command (on notebook): "docker-machine create --driver virtualbox --virtualbox-memory=600  labdocker2"
 
 10. Check ip address of new docker-machine (labdocker2) by command (on notebook): "docker-machine ls"
 
@@ -89,13 +89,13 @@ Registry on multihost docker-machine
 14. Run container registry (labdocker):
 
 	docker run -d -p 5000:5000 \
-	--restart=always --name registry \
+	--restart=always --name registrylab \
 	-v /home/docker:/var/lib/registry \
 	-v /home/docker/labdockercert:/certs \
 	-e REGISTRY_STORAGE_DELETE_ENABLED=true \
 	-e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/labdocker.com.crt \
 	-e REGISTRY_HTTP_TLS_KEY=/certs/labdocker.com.key \
-	registry:2.4
+	registry:2.4.1
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Add "labdocker.com" on hosts (/etc/hosts) ==> sudo vi /etc/hosts
@@ -108,19 +108,29 @@ Add "labdocker.com" on hosts (/etc/hosts) ==> sudo vi /etc/hosts
 
 	docker push labdocker.com:5000/alpine:1.0
 
-	*REMARK: digest: sha256:6756df7c9e260c69087fbe2891740db105e41be00fc3ffc124575f54b85ddf8a size: 506
+	*REMARK: digest: sha256:04298820c9063b955614868b5cb2d60be91a3d7c560e0d6c377b0c3add764504 size: 506
 
 16. Test pull image from labdocker 2 (via labdocker2 docker-machine) by command:
 
 	docker pull labdocker.com:5000/alpine:1.0
 
+17. Testing run registry-web:
+
+	docker run -dt -p 8080:8080 --name registryweb --link registrylab:labdocker.com \
+           -e REGISTRY_URL=https://labdocker.com:5000/v2 \
+           -e REGISTRY_TRUST_ANY_SSL=true \
+           -e REGISTRY_BASIC_AUTH="YWRtaW46Y2hhbmdlbWU=" \
+           -e REGISTRY_NAME=labdocker.com:5000 labdocker/docker-registry-web:latest
+
 17. Operate with docker registry via https
 
 	curl --cacert /home/docker/labdockercert/labdocker.com.crt -X GET https://labdocker.com:5000/v2/_catalog ==> List all images in catalog
 	curl --cacert /home/docker/labdockercert/labdocker.com.crt -X GET https://labdocker.com:5000/v2/alpine/tags/list ==> List all tag on alpine image
-	curl --cacert /home/docker/labdockercert/labdocker.com.crt -X DELETE https://labdocker.com:5000/v2/alpine/manifests/sha256:6756df7c9e260c69087fbe2891740db105e41be00fc3ffc124575f54b85ddf8a
+	curl --cacert /home/docker/labdockercert/labdocker.com.crt -X DELETE https://labdocker.com:5000/v2/alpine/manifests/sha256:04298820c9063b955614868b5cb2d60be91a3d7c560e0d6c377b0c3add764504
+
+
 
 18. Cleanup by command: 
 
-	docker stop registry
-	docker rm -v registry
+	docker stop registrylab registryweb
+	docker rm -v registrylab registryweb

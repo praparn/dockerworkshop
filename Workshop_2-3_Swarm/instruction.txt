@@ -9,9 +9,9 @@ Clean Up All Existing LAB / Create docker-engine for LAB Swarm
 
 2. Create docker-engine for lab and stop labdocker2 (for reduce resource consume) with command below:
 
-	docker-machine create --driver=virtualbox --virtualbox-memory=400 swarm-mng
-	docker-machine create --driver=virtualbox --virtualbox-memory=400 swarm-node1
-	docker-machine create --driver=virtualbox --virtualbox-memory=400 swarm-node2
+	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-mng
+	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-node1
+	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-node2
 	docker-machine stop labdocker2
 
 3. Record ip address of each docker-engine for use in next step: Normally should like below:
