@@ -1,129 +1,67 @@
-For this workshop. We will create new docker-engine for swarm like demonstration below:
+For this workshop. We will create new docker-engine for swarm 1.2 with new architecture for demonstration below:
 
 =================
-Clean Up All Existing LAB / Create docker-engine for LAB Swarm
+Create docker-engine for LAB Swarm
 =================
-1. Check all docker-machine on previous lab with command:
+1. Check/Clean-Up all docker-machine on previous lab with command:
 
-	docker-machine ls
+	
+	docker-machine stop swarm-mng swarm-node1 swarm-node2 labdocker2
+	docker-machine rm swarm-mng swarm-node1 swarm-node2 labdocker2
 
-2. Create docker-engine for lab and stop labdocker2 (for reduce resource consume) with command below:
+
+2. Create docker-engine for lab (for reduce resource consume) with command below:
 
 	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-mng
 	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-node1
 	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-node2
-	docker-machine stop labdocker2
+	docker-machine regenerate-certs swarm-mag swarm-node1 swarm-node2
 
 3. Record ip address of each docker-engine for use in next step: Normally should like below:
 
 D:\certs>docker-machine ls
 NAME          ACTIVE   DRIVER       STATE     URL                         SWARM
-consul        -        virtualbox   Stopped
-labdocker     -        virtualbox   Running   tcp://192.168.99.100:2376
-labdocker2    -        virtualbox   Stopped
-swarm-mng     -        virtualbox   Running   tcp://192.168.99.102:2376
-swarm-node1   -        virtualbox   Running   tcp://192.168.99.103:2376
-swarm-node2   -        virtualbox   Running   tcp://192.168.99.104:2376
+labdocker     -        virtualbox   Running   tcp://192.168.99.100:2376           v1.12.0-rc4   
+swarm-mng     -        virtualbox   Running   tcp://192.168.99.101:2376           v1.12.0-rc4   
+swarm-node1   -        virtualbox   Running   tcp://192.168.99.102:2376           v1.12.0-rc4   
+swarm-node2   -        virtualbox   Running   tcp://192.168.99.103:2376           v1.12.0-rc4
+
 
 ======================
-Run Consul Discovery Service
+Initial Swarm Cluster
 ======================
-location: ####labdocker####
+location: ####swarm-mng####
 
 1. Login to docker-engine and pull image for consul by command: 
 
-	docker pull labdocker/consul:latest
+	docker swarm init --secret labdocker --listen-addr 192.168.99.101:2377
 
-2. Run container consul by command:
+location: ####swarm-node1####
 
-	docker run --restart=unless-stopped -dt -p 8500:8500 -h consul \
-	--name consul labdocker/consul:latest -server -bootstrap
+2. Join node to swarm by command:
 
-3. Check container of consul by command: docker ps
+	docker swarm join --secret labdocker \
+	--ca-hash sha256:2da7e5b81a40d9a8b7caf50eae0abc7d0c461f69994b0070605770caa28f74ab \
+	192.168.99.101:2377
 
-=================
-Enable NON TLS Connection for Docker-Machine for Remote Execute
-=================
-location:#### swarm-mng, swarm-node1, swarm-node2####
+location: ####swarm-node2####
+3. Join node to swarm by command:
 
-1. Transfer / SCP file "profile" to /home/docker/profile (swarm-mng, swarm-node1, swarm-node2)
+	docker swarm join --secret labdocker \
+	--ca-hash sha256:2da7e5b81a40d9a8b7caf50eae0abc7d0c461f69994b0070605770caa28f74ab \
+	192.168.99.101:2377
 
-   #######################################################################################################
-   In Case Map: "Share_Docker" (
-
-	2.1 Copy "profile" to folder "Share_Docker" (From each folder)
-	2.2 Move file to path /home/docker/composenodejs with command: "mv /Share_Docker/* /home/docker/"
-	2.3 Repeat Step for 3 machine (swarm-mng, swarm-node1, swarm-node2)
-   #######################################################################################################
-
-
-
-2. Copy profile to effective path by command:
-
-	sudo cp /home/docker/profile /var/lib/boot2docker/
-	sudo chmod 644 /var/lib/boot2docker/profile
-
-3. Restart docker daemon by command: sudo /etc/init.d/docker restart
-
-
-================
-SETUP SWARM MANAGER
-================
 location: ####swarm-mng####
+4. Check status of all node that join to swarm cluster by command:
 
-1. Pulling image of swarm by command: docker pull swarm
+	docker node ls
 
-2. Run container for swarm manager by command:
+5. Define special label to node in swarm-node by command:
+
 	
-	docker run -dt --name swarm-mng --restart=unless-stopped -p 3375:2375 \
-	swarm manage consul://192.168.99.100:8500
-
-3. Check to make sure docker swarm manger running by command: docker ps
-
-4. Join docker-machine (docker-mng) to swarm by command:
-	docker -H=tcp://192.168.99.102:2375 run -d --name swarm-agent \
-	swarm join --advertise=192.168.99.102:2375  \
-	consul://192.168.99.100:8500
-
-5. Join docker-machine (docker-node1) to swarm by command:
-
-	docker -H=tcp://192.168.99.103:2375 run -d --name swarm-agent \
-        swarm join --advertise=192.168.99.103:2375 \
-	consul://192.168.99.100:8500
-
-6. Join docker-machine (docker-node2) to swarm by command:
-
-	docker -H=tcp://192.168.99.104:2375 run -d --name swarm-agent \
-        swarm join --advertise=192.168.99.104:2375 \
-	consul://192.168.99.100:8500
--------------------------------------------------------------------------------
-location: ####client-cli####
-
-6. Set Environment Path for Run in Swarm by command:
-
-	export DOCKER_HOST=192.168.99.102:3375 ==> Case Unix / MAC
-	set DOCKER_HOST=192.168.99.102:3375 ==> Case Windows
-
-7. Check status of Swarm by command: docker info
-
-8. Check status of Consul by command: docker run --rm swarm list consul://192.168.99.100:8500
-
-9. Test run some image on swarm by command: docker run -dt --name test labdocker/alpine:latest sh
-
-10. Check status and location of container by command: docker ps
-
-11. Clean Up by command: 
-	
-	docker stop test
-	docker rm test
-
-12. Pull image for preparation lab by command:
-
-	docker pull labdocker/alpineweb:latest
-	docker pull labdocker/nginx:latest
 
 ================
-Container Scheduling: Constraint
+Initial Service on Docker Swarm
 ================
 location: ####client-cli####
 
