@@ -56,29 +56,29 @@ location: ####swarm-mng####
 
 	docker node ls
 
-5. Define special label to node in swarm-node by command:
-
 	
 
 ================
 Initial Service on Docker Swarm
 ================
-location: ####client-cli####
+location: ####swarm-mng####
 
-1. Run container with constraint for storage as command below:
+1. Initial docker service for nodes:
 
-	docker run -d -P -e constraint:Storage==nvdimm --name nodejs \
-	labdocker/alpineweb:latest node hello.js
+	docker service create --name nodejs \
+	labdocker/alpineweb:latest node hello.js
+2. Check process of container by command: 
+	
+	docker service ls
+	docker service task nodes
 
-	docker run -d -P -e constraint:Storage==sas --name nodejs2 \
-	labdocker/alpineweb:latest node hello.js
+3. Scale nodes by command: docker service scale nodejs=4
 
-2. Check process of container by command: docker ps
+4. Check latest scale by command: docker service ls
 
-3. Clean Up by command:
+5. Test update service name by command: docker service update nodejs —name nodejsnew
 
-	docker stop nodejs nodejs2
-	docker rm nodejs nodejs2
+6. Stop & Remove service by command: docker service rm nodejsnew
 
 ===============
 Container Scheduling: Affinity by Container Name/ID
