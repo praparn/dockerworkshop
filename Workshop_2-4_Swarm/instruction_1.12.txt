@@ -74,11 +74,20 @@ location: ####swarm-mng####
 	docker service ls
 	docker service task nodes
 
-3. Scale nodes by command: docker service scale nodejs=4
+3. Scale nodes by command: docker service scale nodejs=5
 
 4. Check latest scale by command: docker service ls
 
-5. Test update service name by command: docker service update nodejs —name nodejsnew
+5. Test update service name by command: 
+
+	docker service update nodejs —name nodejsnew
+	docker service ls
+	docker service task nodejsnew
+
+6. Update reserve/limit CPU by command:
+
+	docker service update --reserve-cpu 2 --limit-cpu 3 nodejsnew
+	docker service inspect nodejsnew|more
 
 6. Stop & Remove service by command: docker service rm nodejsnew
 
