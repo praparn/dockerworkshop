@@ -34,22 +34,24 @@ location: ####swarm-mng####
 
 1. Login to docker-engine and pull image for consul by command: 
 
-	docker swarm init --secret labdocker --listen-addr 192.168.99.101:2377
+	docker swarm init --advertise-addr 192.168.99.101:2377
 
 location: ####swarm-node1####
 
 2. Join node to swarm by command:
 
-	docker swarm join --secret labdocker \
-	--ca-hash sha256:2da7e5b81a40d9a8b7caf50eae0abc7d0c461f69994b0070605770caa28f74ab \
-	192.168.99.101:2377
+	docker swarm join \
+    --token SWMTKN-1-316tn4xze2w2zi7jpukxjdyoniu18k0onh5ywrxinzmau8t71f-4750wvm6fqxi8lbd3trlw7pk4 \
+    192.168.99.101:2377
+
+
 
 location: ####swarm-node2####
 3. Join node to swarm by command:
 
-	docker swarm join --secret labdocker \
-	--ca-hash sha256:2da7e5b81a40d9a8b7caf50eae0abc7d0c461f69994b0070605770caa28f74ab \
-	192.168.99.101:2377
+	docker swarm join \
+    --token SWMTKN-1-316tn4xze2w2zi7jpukxjdyoniu18k0onh5ywrxinzmau8t71f-4750wvm6fqxi8lbd3trlw7pk4 \
+    192.168.99.101:2377
 
 location: ####swarm-mng####
 4. Check status of all node that join to swarm cluster by command:
