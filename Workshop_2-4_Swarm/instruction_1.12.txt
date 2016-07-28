@@ -91,38 +91,56 @@ location: ####swarm-mng####
 
 6. Stop & Remove service by command: docker service rm nodejsnew
 
-===============
-Container Scheduling: Affinity by Container Name/ID
-===============
-location: ####client-cli####
 
-1. Run container with Affinity (Container Name) as command below:
+===============
+Advance running service in swarm: node constrain
+===============
+location: ####swarm-mng####
 
-	docker run -dt --name nodejs -e constraint:Storage==sas \
-	labdocker/alpineweb:latest node hello.js
+1. Run service with Constraint “node.id” as command below:
+
+	docker service create --constraint ‘node.id==d4495w8xwhtjrdmadm05dip6x’ --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
 	
-	docker run -dt --name web -e affinity:container==nodejs \
-	labdocker/nginx:latest 
-	
-	docker ps
+	docker service tasks nodejs
 
-2. Clean Up by command
+2. Change service with Constrating “node.hostname” and delete Constraint “node.id” by  command below:
 
-	docker stop nodejs web
-	docker rm nodejs web
+	docker service update --constraint-rm 'node.id==d4495w8xwhtjrdmadm05dip6x' --constraint-add 'node.hostname!=swarm-mng' nodejs
 
+	docker service inspect nodejs|grep update ==> Under complete
+
+	docker service tasks nodejs
+
+	docker service rm nodes 
 
 ===============
-Container Scheduling: Affinity by Image
+Advance running service in swarm: custom label on node
 ===============
-location: ####swarm-node1####
+location: ####swarm-mng####
 
-1. Pull Image for alpine linux on swarm-node1 by command: docker pull labdocker/alpine:latest
+1. Add customise label to node in swarm cluster by command: 
 
-location: swarm-node2
+	docker node update --label-add 'storage=sas' swarm-mng
 
-2. Delete Image (If Avaliable) for alpine linux on swarm-node2 by command: docker rmi labdocker/alpine:latest
+	docker node update --label-add 'storage=nvdimm' swarm-node1
 
+	docker node update --label-add 'storage=sata' swarm-node2
+
+2. Check configuration of node by command: 
+
+	docker node inspect swarm-mng|grep storage
+
+	docker node inspect swarm-node1|grep storage
+
+	docker node inspect swarm-node2|grep storage
+
+3. Create service nodejs to running with constraint custom label by command:
+
+	docker service create --constraint ‘node.labels.storage==saa’ --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
+
+	docker service tasks nodejs
+ß
+I
 location: ####client-cli####
 
 3. Run container with Affinity (Image) as commmand:
