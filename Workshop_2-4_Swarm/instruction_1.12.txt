@@ -176,24 +176,62 @@ location: ####swarm-mng,swarm-node1, swarm-node2 (upon what node run)####
 ==========
 Add Redundancy Swarm Manager
 ==========
+####labdocker####
+
+1. Add “labdocker” to candidate manager by command:
+
+	docker swarm join --token SWMTKN-1-316tn4xze2w2zi7jpukxjdyoniu18k0onh5ywrxinzmau8t71f-124ymuj6mouz1vlcq2o
+nwc8aa 192.168.99.104:2377 (Difference on each machine)
+
+
+2. Check state of swarm node by command: docker node ls
+
+3. Up existing node “swarm-node1” to manager by command:
+
+	docker node update —-role manager swarm-node1
+	
+	docker node ls
+
 ####swarm-mng####
 
-1. Add “swarm-node1” to candidate
+4. Shutdown swarm-mag by command: sudo shutdown -h now
 
-2. 
+####swarm-node1####
+5. Check swarm cluster status by command: docker node ls
+
+####PC####
+6. Start up “swarm-mag” by command: docker-machine start swarm-mag
+
+####swarm-mng####
+7. Check swarm cluster status by command: docker node ls
+
+
 	
 ==========
-Clean Up Lab
+Remove Manager / Worker from Swarm Cluster
 ==========
-location: ####Your PC / Mac Book####
-1. Stop/Remove all swarm node by command:
+
+####swarm-mng or swarm-node1####
+1. Remove role manager from “labdocker” and drain node by command: 
+	
+	docker node update --role worker labdocker
+
+	docker node update --availability drain labdocker
+
+	docker node ls
+
+####labdocker####
+2. Leave from swarm cluster by command: docker swarm leave
+
+####swarm-mng or swarm-node1####
+3. Check node status of “labdocker” by command: docker node ls
+
+4. After node status “Down” we can remove node by command: docker node rm labdocker
+
+==========
+Clean Up
+==========
+1. Docker machine stop/remove all machine by command: 
 
 	docker-machine stop swarm-mng swarm-node1 swarm-node2
 	docker-machine rm swarm-mng swarm-node1 swarm-node2
-
-location: ####labdocker####
-2. Stop consul container by command:
-
-	docker stop consul
-	docker rm console
-
