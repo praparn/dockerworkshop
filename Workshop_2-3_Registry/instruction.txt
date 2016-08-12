@@ -4,7 +4,7 @@ For this workshop. We will demonstrate "registry on single docker-machine", "reg
 Registry on single docker-machine
 ===================================
 
-1. Getting image of registry by command: "docker pull registry:2.4.1”
+1. Getting image of registry by command: "docker pull registry:2.5.0”
 	*REMARK: Registry image sizing about 50 MB
 
 2. Running registry by command:
@@ -12,9 +12,9 @@ Registry on single docker-machine
 	docker run -d -p 5000:5000 \
 	--restart=always --name registrylab \
 	-e REGISTRY_STORAGE_DELETE_ENABLED=true \
-	-v /home/docker:/var/lib/registry registry:2.4.1 
+	-v /home/docker:/var/lib/registry registry:2.5.0
 
-3. Tag image for upload to new registry with command: 
+3. Tag image for upload to new registry with command:
 
 	docker tag labdocker/alpine:latest \
 	localhost:5000/alpine:latest
@@ -95,7 +95,7 @@ Registry on multihost docker-machine
 	-e REGISTRY_STORAGE_DELETE_ENABLED=true \
 	-e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/labdocker.com.crt \
 	-e REGISTRY_HTTP_TLS_KEY=/certs/labdocker.com.key \
-	registry:2.4.1
+	registry:2.5.0
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Add "labdocker.com" on hosts (/etc/hosts) ==> sudo vi /etc/hosts
@@ -130,7 +130,7 @@ Add "labdocker.com" on hosts (/etc/hosts) ==> sudo vi /etc/hosts
 
 
 
-18. Cleanup by command: 
+18. Cleanup by command:
 
 	docker stop registrylab registryweb
 	docker rm -v registrylab registryweb
