@@ -30,7 +30,7 @@ Run Consul Discovery Service
 ======================
 location: ####labdocker####
 
-1. Login to docker-engine and pull image for consul by command: 
+1. Login to docker-engine and pull image for consul by command:
 
 	docker pull labdocker/consul:latest
 
@@ -74,7 +74,7 @@ location: ####swarm-mng####
 1. Pulling image of swarm by command: docker pull swarm
 
 2. Run container for swarm manager by command:
-	
+
 	docker run -dt --name swarm-mng --restart=unless-stopped -p 3375:2375 \
 	swarm manage consul://192.168.99.100:8500
 
@@ -112,8 +112,8 @@ location: ####client-cli####
 
 10. Check status and location of container by command: docker ps
 
-11. Clean Up by command: 
-	
+11. Clean Up by command:
+
 	docker stop test
 	docker rm test
 
@@ -151,10 +151,10 @@ location: ####client-cli####
 
 	docker run -dt --name nodejs -e constraint:Storage==sas \
 	labdocker/alpineweb:latest node hello.js
-	
+
 	docker run -dt --name web -e affinity:container==nodejs \
-	labdocker/nginx:latest 
-	
+	labdocker/nginx:latest
+
 	docker ps
 
 2. Clean Up by command
@@ -200,7 +200,7 @@ Container Scheduling: Dependency Filter
 ============
 location: ####client-cli####
 
-1. Create volume container by command: 
+1. Create volume container by command:
 
 	docker run -dt --name datavol -v /data labdocker/alpine:latest sh
 
@@ -220,7 +220,7 @@ Container Scheduling: Port Filter
 location: ####client-cli####
 
 1. Run docker container for create 2 container nodejs with mapping port 3000 by command:
-	
+
 	docker run -dt --name nodejs1 -p 3000:3000 labdocker/alpineweb:latest node hello.js
 	docker run -dt --name nodejs2 -p 3000:3000 labdocker/alpineweb:latest node hello.js
 	docker ps
@@ -320,7 +320,7 @@ location: ####client-cli###
 
 4. Wait 5 min before check: docker ps
 
-5. CleanUp Lab by command: 
+5. CleanUp Lab by command:
 	docker stop alpine
 	docker rm alpine
 
@@ -331,12 +331,11 @@ Clean Up Lab
 location: ####Your PC / Mac Book####
 1. Stop/Remove all swarm node by command:
 
-	docker-machine stop swarm-mng swarm-node1 swarm-node2
-	docker-machine rm swarm-mng swarm-node1 swarm-node2
+	docker-machine stop swarm-mng swarm-node1 swarm-node2 labdocker2
+	docker-machine rm swarm-mng swarm-node1 swarm-node2 labdocker2
 
 location: ####labdocker####
 2. Stop consul container by command:
 
 	docker stop consul
-	docker rm console
-
+	docker rm consul

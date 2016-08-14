@@ -5,7 +5,6 @@ Create docker-engine for LAB Swarm
 =================
 1. Check/Clean-Up all docker-machine on previous lab with command:
 
-	
 	docker-machine stop swarm-mng swarm-node1 swarm-node2 labdocker2
 	docker-machine rm swarm-mng swarm-node1 swarm-node2 labdocker2
 
@@ -15,16 +14,16 @@ Create docker-engine for LAB Swarm
 	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-mng
 	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-node1
 	docker-machine create --driver=virtualbox --virtualbox-memory=600 swarm-node2
-	docker-machine regenerate-certs swarm-mag swarm-node1 swarm-node2
+	docker-machine regenerate-certs swarm-mng swarm-node1 swarm-node2
 
 3. Record ip address of each docker-engine for use in next step: Normally should like below:
 
 D:\certs>docker-machine ls
 NAME          ACTIVE   DRIVER       STATE     URL                         SWARM
-labdocker     -        virtualbox   Running   tcp://192.168.99.100:2376           v1.12.0-rc4   
-swarm-mng     -        virtualbox   Running   tcp://192.168.99.101:2376           v1.12.0-rc4   
-swarm-node1   -        virtualbox   Running   tcp://192.168.99.102:2376           v1.12.0-rc4   
-swarm-node2   -        virtualbox   Running   tcp://192.168.99.103:2376           v1.12.0-rc4
+labdocker     -        virtualbox   Running   tcp://192.168.99.100:2376           v1.12.0
+swarm-mng     -        virtualbox   Running   tcp://192.168.99.105:2376           v1.12.0
+swarm-node1   -        virtualbox   Running   tcp://192.168.99.106:2376           v1.12.0
+swarm-node2   -        virtualbox   Running   tcp://192.168.99.107:2376           v1.12.0
 
 
 ======================
@@ -32,33 +31,44 @@ Initial Swarm Cluster
 ======================
 location: ####swarm-mng####
 
-1. Login to docker-engine and pull image for consul by command: 
+1. Initial swarm cluster by command:
 
-	docker swarm init --advertise-addr 192.168.99.101:2377
+	docker swarm init --advertise-addr 192.168.99.105:2377
+
+	====Result=====
+	To add a worker to this swarm, run the following command:
+    docker swarm join \
+    --token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-a3l9xv0zkz7jlo94a6dtqn8u3 \
+    192.168.99.105:2377
+
+To add a manager to this swarm, run the following command:
+    docker swarm join \
+    --token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-dfq6imexv051u75y1g8690dw9 \
+    192.168.99.105:2377
+	===============
 
 location: ####swarm-node1####
 
 2. Join node to swarm by command:
 
 	docker swarm join \
-    --token SWMTKN-1-316tn4xze2w2zi7jpukxjdyoniu18k0onh5ywrxinzmau8t71f-4750wvm6fqxi8lbd3trlw7pk4 \
-    192.168.99.101:2377
-
-
+--token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-a3l9xv0zkz7jlo94a6dtqn8u3 \
+192.168.99.105:2377
 
 location: ####swarm-node2####
 3. Join node to swarm by command:
 
 	docker swarm join \
-    --token SWMTKN-1-316tn4xze2w2zi7jpukxjdyoniu18k0onh5ywrxinzmau8t71f-4750wvm6fqxi8lbd3trlw7pk4 \
-    192.168.99.101:2377
+--token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-a3l9xv0zkz7jlo94a6dtqn8u3 \
+192.168.99.105:2377
+
 
 location: ####swarm-mng####
 4. Check status of all node that join to swarm cluster by command:
 
 	docker node ls
 
-	
+
 
 ================
 Initial Service on Docker Swarm
@@ -69,20 +79,20 @@ location: ####swarm-mng####
 
 	docker service create --name nodejs \
 	labdocker/alpineweb:latest node hello.js
-2. Check process of container by command: 
-	
+2. Check process of container by command:
+
 	docker service ls
-	docker service task nodes
+	docker service ps nodejs
 
 3. Scale nodes by command: docker service scale nodejs=5
 
 4. Check latest scale by command: docker service ls
 
-5. Test update service name by command: 
+5. Test update service name by command:
 
-	docker service update nodejs —name nodejsnew
+	docker service update nodejs --name nodejsnew
 	docker service ls
-	docker service task nodejsnew
+	docker service ps nodejsnew
 
 6. Update reserve/limit CPU by command:
 
@@ -97,19 +107,19 @@ Advance running service in swarm: node constrain
 ===============
 location: ####swarm-mng####
 
-1. Run service with Constraint “node.id” as command below:
+1. Run service with Constraint “node.id” as command below <change node id to swarm-mng>:
 
-	docker service create --constraint ‘node.id==d4495w8xwhtjrdmadm05dip6x’ --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
-	
-	docker service tasks nodejs
+	docker service create --constraint 'node.id==ajn0duort1dnle1ugtvqnwfcs' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
+
+	docker service ps nodejs
 
 2. Change service with Constrating “node.hostname” and delete Constraint “node.id” by  command below:
 
-	docker service update --constraint-rm 'node.id==d4495w8xwhtjrdmadm05dip6x' --constraint-add 'node.hostname!=swarm-mng' nodejs
+	docker service update --constraint-rm 'node.id==ajn0duort1dnle1ugtvqnwfcs' --constraint-add 'node.hostname!=swarm-mng' nodejs
 
 	docker service inspect nodejs|grep update ==> Under complete
 
-	docker service tasks nodejs
+	docker service ps nodejs
 
 	docker service rm nodejs
 
@@ -118,7 +128,7 @@ Advance running service in swarm: custom label on node
 ===============
 location: ####swarm-mng####
 
-1. Add customise label to node in swarm cluster by command: 
+1. Add customise label to node in swarm cluster by command:
 
 	docker node update --label-add 'storage=sas' swarm-mng
 
@@ -126,7 +136,7 @@ location: ####swarm-mng####
 
 	docker node update --label-add 'storage=sata' swarm-node2
 
-2. Check configuration of node by command: 
+2. Check configuration of node by command:
 
 	docker node inspect swarm-mng|grep storage
 
@@ -136,9 +146,9 @@ location: ####swarm-mng####
 
 3. Create service nodejs to running with constraint custom label by command:
 
-	docker service create --constraint ‘node.labels.storage==saa’ --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
+	docker service create --constraint 'node.labels.storage==sas' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
 
-	docker service tasks nodejs
+	docker service ps nodejs
 
 	docker service rm nodejs
 
@@ -157,13 +167,13 @@ location: ####swarm-mng####
 
 3. Create replica nodes  on difference node for test overlay network with command:
 
-	docker service create --name nodejs --replicas=2 --network-add swarmnet -p 3000:3000 labdocker/alpineweb:latest node hello.js
-	
+	docker service create --name nodejs --replicas=2 --network swarmnet labdocker/alpineweb:latest node hello.js
+
 location: ####swarm-mng,swarm-node1, swarm-node2 (upon what node run)####
 4. Check IP Address of both container by command:
 
-	docker inspect nodejs1.xx|grep IPAddress 
-	docker inspect nodejs2.xx|grep IPAddress 
+	docker inspect nodejs1.xx|grep IPAddress
+	docker inspect nodejs2.xx|grep IPAddress
 
 5. Test access from container "test1" and access to "test2" by command:
 
@@ -171,7 +181,7 @@ location: ####swarm-mng,swarm-node1, swarm-node2 (upon what node run)####
 	docker exec -it nodejs2.xxx ping 192.168.100.2
 
 6. CleanUp Lab
-	docker service nodejs rm
+	docker service rm nodejs rm
 
 ==========
 Add Redundancy Swarm Manager
@@ -180,16 +190,17 @@ Add Redundancy Swarm Manager
 
 1. Add “labdocker” to candidate manager by command:
 
-	docker swarm join --token SWMTKN-1-316tn4xze2w2zi7jpukxjdyoniu18k0onh5ywrxinzmau8t71f-124ymuj6mouz1vlcq2o
-nwc8aa 192.168.99.104:2377 (Difference on each machine)
+docker swarm join \
+--token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-dfq6imexv051u75y1g8690dw9 \
+192.168.99.105:2377
 
 
 2. Check state of swarm node by command: docker node ls
 
 3. Up existing node “swarm-node1” to manager by command:
 
-	docker node update —-role manager swarm-node1
-	
+	docker node update --role manager swarm-node1
+
 	docker node ls
 
 ####swarm-mng####
@@ -206,14 +217,14 @@ nwc8aa 192.168.99.104:2377 (Difference on each machine)
 7. Check swarm cluster status by command: docker node ls
 
 
-	
+
 ==========
 Remove Manager / Worker from Swarm Cluster
 ==========
 
 ####swarm-mng or swarm-node1####
-1. Remove role manager from “labdocker” and drain node by command: 
-	
+1. Remove role manager from “labdocker” and drain node by command:
+
 	docker node update --role worker labdocker
 
 	docker node update --availability drain labdocker
@@ -231,7 +242,7 @@ Remove Manager / Worker from Swarm Cluster
 ==========
 Clean Up
 ==========
-1. Docker machine stop/remove all machine by command: 
+1. Docker machine stop/remove all machine by command:
 
 	docker-machine stop swarm-mng swarm-node1 swarm-node2
 	docker-machine rm swarm-mng swarm-node1 swarm-node2
