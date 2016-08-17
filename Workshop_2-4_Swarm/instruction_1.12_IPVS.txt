@@ -1,0 +1,96 @@
+This instruction will show how to deploy web-server/proxy in swarm environment:
+*Remark* This will assume that you already have swarm farm for your-self already
+
+===========================
+Scenario 1: Swarm Scale IPVS (IP Virtual Host) for NODEJS
+===========================
+1. Create overlay network call "nodejsinternal" for contain all nodejs by command:
+
+docker network create --driver overlay --subnet=192.168.100.0/24 nodejsnet
+
+2. Create nodejs's service with 1 repica:
+
+docker service create --name nodejs -p 3000:3000/tcp \
+--network nodejsnet labdocker/alpineweb:latest node hello.js
+
+3. Check service status by command: docker service ls
+
+4. Check location of service nodejs by command: docker service ps nodejs
+
+5. Inspect IP Address of service by command: docker service inspect nodejs|more
+
+6. Access to node who run container and inspect container ip by command:
+
+  docker inspect <container id> |grep IPAddress
+
+7. Compare 5 - 6:
+
+8. Test access nodejs web server via publish port by Web Browser:
+
+  http://<swarm-mng>:3000
+  http://<swarm-node1>:3000
+  http://<swarm-node2>:3000
+
+9. Test ScaleUp service by command: docker service scale nodejs=10
+
+10. Check and compare ip address for all docker container/service by command:
+
+  docker service ps nodejs
+  docker inspect <container id> |grep IPAddress
+
+11. Update service by remove port 3000 publish by command:
+
+  docker service update --publish-rm 3000 nodejs
+
+12. Cleanup lab by command:
+
+  docker service rm nodejs
+  docker network rm nodejsnet
+
+===========================
+Scenario 2: Swarm Scale IPVS (IP Virtual Host) with WORDPRESS/MARIADB
+===========================
+1. Create network for webinternal for establish connection database by command:
+
+docker network create --driver overlay \
+--subnet=192.168.101.0/24 webinternal
+
+2. Create service mariadb/wordpress by command:
+
+docker service create --name mariadb -e MYSQL_ROOT_PASSWORD=password \
+-e MYSQL_USER=wordpress -e MYSQL_PASSWORD=password --publish 3306/tcp \
+-e MYSQL_DATABASE=wordpress_db --network webinternal \
+labdocker/mariadb:wordpressdemo
+
+docker service create --name wordpress -e WORDPRESS_DB_USER=wordpress \
+-e WORDPRESS_DB_PASSWORD=password -e WORDPRESS_DB_NAME=wordpress_db \
+-e WORDPRESS_DB_HOST=mariadb --network webinternal \
+--publish 80:80/tcp labdocker/wordpress:wordpressdemo
+
+3. Check progress of service until finished by command:
+
+docker service ls
+docker service ps mariadb
+docker service ps wordpress
+
+4. Access to wordpress with any ip of node in swarm:
+
+http://<swarm-mng>
+http://<swarm-node1>
+http://<swarm-node2>
+
+5. Scale wordpress to 5 replicas by command:
+
+docker service scale wordpress=5
+docker service ls
+
+6. Access to wordpress with any ip of node in swarm:
+
+http://<swarm-mng>
+http://<swarm-node1>
+http://<swarm-node2>
+
+7. Cleanup Lab by command:
+
+docker service rm wordpress mariadb
+docker network rm webinternal

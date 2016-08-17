@@ -78,7 +78,7 @@ location: ####swarm-mng####
 1. Initial docker service for nodes:
 
 	docker service create --name nodejs \
-	labdocker/alpineweb:latest node hello.js
+  labdocker/alpineweb:latest node hello.js
 2. Check process of container by command:
 
 	docker service ls
@@ -182,6 +182,52 @@ location: ####swarm-mng,swarm-node1, swarm-node2 (upon what node run)####
 
 6. CleanUp Lab
 	docker service rm nodejs rm
+
+	===========================
+	Swarm Scale IPVS (IP Virtual Host) for NODEJS
+	===========================
+	1. Create overlay network call "nodejsinternal" for contain all nodejs by command:
+
+	docker network create --driver overlay --subnet=192.168.100.0/24 nodejsnet
+
+	2. Create nodejs's service with 1 repica:
+
+	docker service create --name nodejs -p 3000:3000/tcp \
+	--network nodejsnet labdocker/alpineweb:latest node hello.js
+
+	3. Check service status by command: docker service ls
+
+	4. Check location of service nodejs by command: docker service ps nodejs
+
+	5. Inspect IP Address of service by command: docker service inspect nodejs|more
+
+	6. Access to node who run container and inspect container ip by command:
+
+	  docker inspect <container id> |grep IPAddress
+
+	7. Compare 5 - 6:
+
+	8. Test access nodejs web server via publish port by Web Browser:
+
+	  http://<swarm-mng>:3000
+	  http://<swarm-node1>:3000
+	  http://<swarm-node2>:3000
+
+	9. Test ScaleUp service by command: docker service scale nodejs=10
+
+	10. Check and compare ip address for all docker container/service by command:
+
+	  docker service ps nodejs
+	  docker inspect <container id> |grep IPAddress
+
+	11. Update service by remove port 3000 publish by command:
+
+	  docker service update --publish-rm 3000 nodejs
+
+	12. Cleanup lab by command:
+
+	  docker service rm nodejs
+	  docker network rm nodejsnet
 
 ==========
 Add Redundancy Swarm Manager
