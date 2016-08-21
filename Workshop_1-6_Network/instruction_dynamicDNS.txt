@@ -31,6 +31,15 @@ docker network connect webpublic nginx --ip="192.168.100.130"
 
 4. Scale up backend container
 
+docker pull labdocker/alpineweb:web3
+docker pull labdocker/alpineweb:web4
+docker pull labdocker/alpineweb:web5
+docker pull labdocker/alpineweb:web6
+docker pull labdocker/alpineweb:web7
+docker pull labdocker/alpineweb:web8
+docker pull labdocker/alpineweb:web9
+docker pull labdocker/alpineweb:web10
+
 docker run -dt --name web3 --net webinternal \
 --net-alias web labdocker/alpineweb:web3 node hello.js
 
