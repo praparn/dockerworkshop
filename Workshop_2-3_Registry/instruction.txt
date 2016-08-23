@@ -4,8 +4,12 @@ For this workshop. We will demonstrate "registry on single docker-machine", "reg
 Registry on single docker-machine
 ===================================
 
-1. Getting image of registry by command: "docker pull registry:2.5.0”
+1. Getting image of registry by command:
+docker pull registry:2.5.0
 	*REMARK: Registry image sizing about 50 MB
+
+docker pull labdocker/docker-registry-web:latest
+	*REMARK: Pull this will take a lot of time. Please signon another session to continute
 
 2. Running registry by command:
 
@@ -122,7 +126,7 @@ Add "labdocker.com" on hosts (/etc/hosts) ==> sudo vi /etc/hosts
            -e REGISTRY_BASIC_AUTH="YWRtaW46Y2hhbmdlbWU=" \
            -e REGISTRY_NAME=labdocker.com:5000 labdocker/docker-registry-web:latest
 
-17. Operate with docker registry via https
+18. Operate with docker registry via https
 
 	curl --cacert /home/docker/labdockercert/labdocker.com.crt -X GET https://labdocker.com:5000/v2/_catalog ==> List all images in catalog
 	curl --cacert /home/docker/labdockercert/labdocker.com.crt -X GET https://labdocker.com:5000/v2/alpine/tags/list ==> List all tag on alpine image
@@ -130,7 +134,7 @@ Add "labdocker.com" on hosts (/etc/hosts) ==> sudo vi /etc/hosts
 
 
 
-18. Cleanup by command:
+19. Cleanup by command:
 
 	docker stop registrylab registryweb
 	docker rm -v registrylab registryweb

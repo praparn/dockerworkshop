@@ -37,13 +37,18 @@ location: ####swarm-mng####
 
 	====Result=====
 	To add a worker to this swarm, run the following command:
-    docker swarm join \
-    --token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-a3l9xv0zkz7jlo94a6dtqn8u3 \
-    192.168.99.105:2377
 
-To add a manager to this swarm, run the following command:
+		docker swarm join \
+	--token SWMTKN-1-2oxb7ja4bocs2azsg51vals19216wzep2gv5km2plim2v5kxjg-1euo4wt1u528qk4jeu3hbcd4v \
+	192.168.99.105:2377
+
+	For manager join we need to show by command:
+		docker swarm join-token manager
+
+		To add a manager to this swarm, run the following command:
+
     docker swarm join \
-    --token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-dfq6imexv051u75y1g8690dw9 \
+    --token SWMTKN-1-2oxb7ja4bocs2azsg51vals19216wzep2gv5km2plim2v5kxjg-et6bpova1k0967683t0lwys44 \
     192.168.99.105:2377
 	===============
 
@@ -52,14 +57,14 @@ location: ####swarm-node1####
 2. Join node to swarm by command:
 
 	docker swarm join \
---token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-a3l9xv0zkz7jlo94a6dtqn8u3 \
+--token SWMTKN-1-2oxb7ja4bocs2azsg51vals19216wzep2gv5km2plim2v5kxjg-1euo4wt1u528qk4jeu3hbcd4v \
 192.168.99.105:2377
 
 location: ####swarm-node2####
 3. Join node to swarm by command:
 
 	docker swarm join \
---token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-a3l9xv0zkz7jlo94a6dtqn8u3 \
+--token SWMTKN-1-2oxb7ja4bocs2azsg51vals19216wzep2gv5km2plim2v5kxjg-1euo4wt1u528qk4jeu3hbcd4v \
 192.168.99.105:2377
 
 
@@ -73,6 +78,9 @@ location: ####swarm-mng####
 ================
 Initial Service on Docker Swarm
 ================
+location: ####swarm-mng,swarm-node1,swarm-node2####
+0. Pull image of nodejs by command: docker pull labdocker/alpineweb:latest
+
 location: ####swarm-mng####
 
 1. Initial docker service for nodes:
@@ -94,10 +102,17 @@ location: ####swarm-mng####
 	docker service ls
 	docker service ps nodejsnew
 
-6. Update reserve/limit CPU by command:
+6. Scale service back to 1 by command:
 
-	docker service update --reserve-cpu 2 --limit-cpu 3 nodejsnew
+	docker service scale nodejsnew=1
+	docker service ls
+	docker service ps nodejsnew
+
+7. Update reserve/limit CPU by command:
+
+	docker service update --reserve-cpu 1 --limit-cpu 1 nodejsnew
 	docker service inspect nodejsnew|more
+	docker service ps nodejsnew
 
 6. Stop & Remove service by command: docker service rm nodejsnew
 
@@ -109,13 +124,13 @@ location: ####swarm-mng####
 
 1. Run service with Constraint “node.id” as command below <change node id to swarm-mng>:
 
-	docker service create --constraint 'node.id==ajn0duort1dnle1ugtvqnwfcs' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
+	docker service create --constraint 'node.id==46o83l9hkti9v8sg2iyo8jpax' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
 
 	docker service ps nodejs
 
 2. Change service with Constrating “node.hostname” and delete Constraint “node.id” by  command below:
 
-	docker service update --constraint-rm 'node.id==ajn0duort1dnle1ugtvqnwfcs' --constraint-add 'node.hostname!=swarm-mng' nodejs
+	docker service update --update-parallelism 5 --constraint-rm 'node.id==46o83l9hkti9v8sg2iyo8jpax' --constraint-add 'node.hostname!=swarm-mng' nodejs
 
 	docker service inspect nodejs|grep update ==> Under complete
 
@@ -167,22 +182,27 @@ location: ####swarm-mng####
 
 3. Create replica nodes  on difference node for test overlay network with command:
 
-	docker service create --name nodejs --replicas=2 --network swarmnet labdocker/alpineweb:latest node hello.js
+	docker service create --name nodejs --replicas=2 --network swarmnet -p 3000:3000 labdocker/alpineweb:latest node hello.js
 
 location: ####swarm-mng,swarm-node1, swarm-node2 (upon what node run)####
 4. Check IP Address of both container by command:
 
-	docker inspect nodejs1.xx|grep IPAddress
-	docker inspect nodejs2.xx|grep IPAddress
+	docker inspect nodejs.XX|grep IPAddress
+	docker inspect nodejs.XX|grep IPAddress
 
 5. Test access from container "test1" and access to "test2" by command:
 
 	docker exec -it nodejs1.xxx ping 192.168.100.3
 	docker exec -it nodejs2.xxx ping 192.168.100.2
 
-6. CleanUp Lab
-	docker service rm nodejs rm
+6. Test access via web page of any node's ip address:
 
+		http://x.x.x.x:3000 <swarm-mng>
+		http://x.x.x.x:3000 <swarm-node1>
+		http://x.x.x.x:3000 <swarm-node2>
+
+7. CleanUp Lab
+	docker service rm nodejs
 
 ==========
 Add Redundancy Swarm Manager
@@ -192,7 +212,7 @@ Add Redundancy Swarm Manager
 1. Add “labdocker” to candidate manager by command:
 
 docker swarm join \
---token SWMTKN-1-111gglk2fk38yiitoxs0zf61wy9c7av12bwza161beglndflp7-dfq6imexv051u75y1g8690dw9 \
+--token SWMTKN-1-2oxb7ja4bocs2azsg51vals19216wzep2gv5km2plim2v5kxjg-et6bpova1k0967683t0lwys44 \
 192.168.99.105:2377
 
 
@@ -212,7 +232,7 @@ docker swarm join \
 5. Check swarm cluster status by command: docker node ls
 
 ####PC####
-6. Start up “swarm-mag” by command: docker-machine start swarm-mag
+6. Start up “swarm-mag” by command: docker-machine start swarm-mng
 
 ####swarm-mng####
 7. Check swarm cluster status by command: docker node ls
