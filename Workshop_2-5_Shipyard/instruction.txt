@@ -1,6 +1,7 @@
 For this workshop. We will demonstration how to start shipyard server on labdocker
 
 1. Install shipyard with command:
+	docker pull swarm:latest
 	docker pull alpine:latest
 	docker pull rethinkdb:latest
 	docker pull microbox/etcd:latest
