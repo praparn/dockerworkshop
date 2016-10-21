@@ -16,7 +16,7 @@ For this workshop. We need you to demo dynamic dns with option --net-alias="xxxx
 	docker run -dt --name web2 --net webinternal \
 	--net-alias web labdocker/alpineweb:web2 node hello.js
 
-2. Run container alpine for check load balance
+2. Run container nginx for check load balance
 
 docker run -dt --name nginx --net webinternal \
  -p 80:8080 labdocker/nginx:labdns

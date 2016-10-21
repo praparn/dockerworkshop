@@ -11,14 +11,6 @@ NODEJS Container
 
 	scp docker@<ip-address of docker-machine>:/home/docker/nodejs <Path of workshop>
 
-   #######################################################################################################
-   In Case Map: "Share_Docker"
-
-	2.1 Copy file to folder "Share_Docker"
-	2.2 Move file to path /home/docker/nodejs with command:"mv /Share_Docker/* /home/docker/nodejs/"
-   #######################################################################################################
-	
-
 3. Build docker image from command: "docker build -t labdocker/node:1.0 /home/docker/nodejs"
 
 4. Test run docker image from command: "docker run -dt --name NODEJS -p 3000:3000 labdocker/node:1.0"
@@ -39,13 +31,6 @@ NGINX Container
    On MAC use SCP for transfer file "nginx.conf" and "dockerfile" to /home/docker/nginx with command:
 
 	scp docker@<ip-address of docker-machine>:/home/docker/nginx <Path of workshop>
-
-   #######################################################################################################
-   In Case Map: "Share_Docker"
-
-	2.1 Copy file to folder "Share_Docker"
-	2.2 Move file to path /home/docker/nodejs with command:"mv /Share_Docker/* /home/docker/nginx/"
-   #######################################################################################################
 
 10. Build docker image from command: "docker build -t labdocker/web:1.0 /home/docker/nginx"
 

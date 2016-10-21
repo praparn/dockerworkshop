@@ -6,7 +6,7 @@ Install docker-compose
 
 1. Get docker-compose from curl to /home/docker with command:
 
-	curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` > /home/docker/docker-compose
+	curl -L https://github.com/docker/compose/releases/download/1.9.0-rc1/docker-compose-`uname -s`-`uname -m` > /home/docker/docker-compose
 
 2. Copy docker-compose to /usr/local/bin/docker-compose with command:
 
@@ -28,18 +28,6 @@ COMPOSENODEJS
 2. Transfer file "docker-compose.yml"to /home/docker/composenodejs
 
 3. Transfer file "dockerfile","Hello.js" from /web to /home/docker/composenodejs/web
-
-
-   #######################################################################################################
-   In Case Map: "Share_Docker" (2-3)
-
-	3.1 Copy all file in folder "Workshop_2-1_Compose/composenodejs" to folder "Share_Docker"
-	3.2 Move file to path /home/docker/composenodejs with command:
-
-	rsync -azvv /Share_Docker/ /home/docker/composenodejs/
-	rm -rf /Share_Docker/*
-   #######################################################################################################
-
 
 4. Start docker-compose on path: /home/docker/composenodejs by command: "docker-compose up -d"
 
@@ -67,17 +55,6 @@ MULTIPLENODEJS
 11. Transfer file "dockerfile","Hello.js" from composemultinodejs/web2 to /home/docker/composemultinodejs/web2
 
 12. Transfer file "dockerfile", "nginx.conf" from composemultinodejs/nginx to /home/docker/composemultinodejs/nginx
-
-  #######################################################################################################
-   In Case Map: "Share_Docker" (9-10)
-
-	12.1 Copy all file in folder "Workshop_2-1_Compose/composemultinodejs" to folder "Share_Docker"
-	12.2 Move file to path /home/docker/composenodejs with command:
-
-	rsync -azvv /Share_Docker/ /home/docker/composemultinodejs/
-	rm -rf /Share_Docker/*
-   #######################################################################################################
-
 
 13. Start docker-compose on path: /home/docker/composemultinodejs by command: "docker-compose up -d"
 
