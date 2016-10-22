@@ -111,7 +111,7 @@ location: ####swarm-mng####
 7. Update reserve/limit CPU by command:
 
 	docker service update --reserve-cpu 1 --limit-cpu 1 nodejsnew
-	docker service inspect nodejsnew|more
+	docker service inspect nodejsnew | more
 	docker service ps nodejsnew
 
 6. Stop & Remove service by command: docker service rm nodejsnew
@@ -124,13 +124,13 @@ location: ####swarm-mng####
 
 1. Run service with Constraint “node.id” as command below <change node id to swarm-mng>:
 
-	docker service create --constraint 'node.id==46o83l9hkti9v8sg2iyo8jpax' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
+	docker service create --constraint 'node.id==dcuoryjkn4b506egizaue36np' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
 
 	docker service ps nodejs
 
 2. Change service with Constrating “node.hostname” and delete Constraint “node.id” by  command below:
 
-	docker service update --constraint-rm 'node.id==46o83l9hkti9v8sg2iyo8jpax' --constraint-add 'node.hostname!=swarm-mng' nodejs
+	docker service update --constraint-rm 'node.id==dcuoryjkn4b506egizaue36np' --constraint-add 'node.hostname!=swarm-mng' nodejs
 
 	docker service inspect nodejs|grep update ==> Under complete
 

@@ -1,4 +1,4 @@
-For this workshop. We will create new docker-engine for swarm like demonstration below:
+dcFor this workshop. We will create new docker-engine for swarm like demonstration below:
 
 =================
 Clean Up All Existing LAB / Create docker-engine for LAB Swarm
@@ -47,16 +47,6 @@ Enable NON TLS Connection for Docker-Machine for Remote Execute
 location:#### swarm-mng, swarm-node1, swarm-node2####
 
 1. Transfer / SCP file "profile" to /home/docker/profile (swarm-mng, swarm-node1, swarm-node2)
-
-   #######################################################################################################
-   In Case Map: "Share_Docker" (
-
-	2.1 Copy "profile" to folder "Share_Docker" (From each folder)
-	2.2 Move file to path /home/docker/composenodejs with command: "mv /Share_Docker/* /home/docker/"
-	2.3 Repeat Step for 3 machine (swarm-mng, swarm-node1, swarm-node2)
-   #######################################################################################################
-
-
 
 2. Copy profile to effective path by command:
 
