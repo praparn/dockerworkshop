@@ -6,22 +6,22 @@ For this workshop. We will demonstration about how to use volume on purpose of s
 	-v /data labdocker/alpine sh
 
 2. Create web container (web1) by attach volume with command:
-	
+
 	docker run -dt --name web1 \
 	--volumes-from datavol labdocker/alpine sh
 
 3. Shell to container web1 and touch file on /data
-	
+
 	docker exec -it web1 sh
 	touch /data/test_web1
 
 4. Create web container (web2) by attach volume with command:
-	
+
 	docker run -dt --name web2 \
 	--volumes-from datavol labdocker/alpine sh
 
 5. Shell to container web2 and touch file on /data
-	
+
 	docker exec -it web2 sh
 	touch /data/test_web2
 
@@ -36,7 +36,7 @@ For this workshop. We will demonstration about how to use volume on purpose of s
 8. Shell to any container to delete file
 
 	docker exec -it web1 sh
-	rm * /data
+	rm * /data/
 
 9. Restore backup for volume /data by run container with command:
 
@@ -50,7 +50,6 @@ For this workshop. We will demonstration about how to use volume on purpose of s
 	ls -l /data
 
 11. Cleanup lab
-	
+
 	docker stop web1 web2 datavol
 	docker rm -v web1 web2 datavol
-	

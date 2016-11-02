@@ -39,8 +39,8 @@ location: ####swarm-mng####
 	To add a worker to this swarm, run the following command:
 
 	docker swarm join \
-    --token SWMTKN-1-1woykh45z7un8e1lu8kx3udxulpkx7om0lzlhmicwo8y68zluz-6v0epexrrex26zgwob79zq6t5 \
-    192.168.99.105:2377
+	 --token SWMTKN-1-1pgxlenzn8abyg4876hnbadsir7qfwoajtbkbwg805pn1w4t8i-3rkx3yx1hwsdv8updryhdng64 \
+	 192.168.99.105:2377
 
 	For manager join we need to show by command:
 		docker swarm join-token manager
@@ -48,25 +48,24 @@ location: ####swarm-mng####
 		To add a manager to this swarm, run the following command:
 
 		docker swarm join \
-	--token SWMTKN-1-1woykh45z7un8e1lu8kx3udxulpkx7om0lzlhmicwo8y68zluz-6i3rcm8j9ps71wf3p5p6equ5r \
-	192.168.99.105:2377
+	    --token SWMTKN-1-1pgxlenzn8abyg4876hnbadsir7qfwoajtbkbwg805pn1w4t8i-69sad6r7u1ltsvi84r1djv2fe \
+	    192.168.99.105:2377
 	===============
 
 location: ####swarm-node1####
 
 2. Join node to swarm by command:
 
-	docker swarm join \
-	--token SWMTKN-1-1woykh45z7un8e1lu8kx3udxulpkx7om0lzlhmicwo8y68zluz-6v0epexrrex26zgwob79zq6t5 \
-	192.168.99.105:2377
+docker swarm join \
+ --token SWMTKN-1-1pgxlenzn8abyg4876hnbadsir7qfwoajtbkbwg805pn1w4t8i-3rkx3yx1hwsdv8updryhdng64 \
+ 192.168.99.105:2377
 
 location: ####swarm-node2####
 3. Join node to swarm by command:
 
-	docker swarm join \
-	--token SWMTKN-1-1woykh45z7un8e1lu8kx3udxulpkx7om0lzlhmicwo8y68zluz-6v0epexrrex26zgwob79zq6t5 \
-	192.168.99.105:2377
-
+docker swarm join \
+ --token SWMTKN-1-1pgxlenzn8abyg4876hnbadsir7qfwoajtbkbwg805pn1w4t8i-3rkx3yx1hwsdv8updryhdng64 \
+ 192.168.99.105:2377
 
 location: ####swarm-mng####
 4. Check status of all node that join to swarm cluster by command:
@@ -124,13 +123,13 @@ location: ####swarm-mng####
 
 1. Run service with Constraint “node.id” as command below <change node id to swarm-mng>:
 
-	docker service create --constraint 'node.id==dcuoryjkn4b506egizaue36np' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
+	docker service create --constraint 'node.id==7cggs5vqw8e8yjhrdd5hcskj2' --name nodejs --replicas=5 labdocker/alpineweb:latest node hello.js
 
 	docker service ps nodejs
 
 2. Change service with Constrating “node.hostname” and delete Constraint “node.id” by  command below:
 
-	docker service update --constraint-rm 'node.id==dcuoryjkn4b506egizaue36np' --constraint-add 'node.hostname!=swarm-mng' nodejs
+	docker service update --constraint-rm 'node.id==7cggs5vqw8e8yjhrdd5hcskj2' --constraint-add 'node.hostname!=swarm-mng' nodejs
 
 	docker service inspect nodejs|grep update ==> Under complete
 
@@ -212,9 +211,8 @@ Add Redundancy Swarm Manager
 1. Add “labdocker” to candidate manager by command:
 
 docker swarm join \
---token SWMTKN-1-2oxb7ja4bocs2azsg51vals19216wzep2gv5km2plim2v5kxjg-et6bpova1k0967683t0lwys44 \
-192.168.99.105:2377
-
+	--token SWMTKN-1-1pgxlenzn8abyg4876hnbadsir7qfwoajtbkbwg805pn1w4t8i-69sad6r7u1ltsvi84r1djv2fe \
+	192.168.99.105:2377
 
 2. Check state of swarm node by command: docker node ls
 
